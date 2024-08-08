@@ -1,0 +1,1 @@
+sudo journalctl --unit=motionrank -n 100 --no-pager -f

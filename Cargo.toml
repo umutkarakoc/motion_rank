@@ -1,0 +1,40 @@
+
+[package]
+name = "motionrank"
+version = "0.9.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+config = "0.13.1"
+derive_more = "0.99.17"
+chrono = {version = "0.4.19", features = ["serde"]}
+dotenv = "0.15.0"
+env_logger = "0.9.0"
+log="0.4.0"
+serde={version = "1.0", features = ["derive"]}
+serde_json = "1.0"
+uuid = {version = "1.1.2", features = ["serde", "v4"]}
+magic-crypt = {version = "3.1.10"}
+futures-util = {version = "0.3.21"}
+reqwest = { version = "0.11.11", default-features = false, features = ["json", "serde_json", "rustls-tls"] }
+sqlx = {version = "0.6.1", default-features = false, features = ["runtime-tokio-rustls", "json", "uuid", "postgres", "chrono", "macros", "default", "offline"]}
+cookie = "*"
+chrono-humanize="*"
+sha2 = "*"
+urlencoding="*"
+base64="*"
+sha256="*"
+axum={version ="*", features = ["headers"]}
+once_cell = "*"
+tower = { version = "0.4", features = ["util"] }
+tower-http = { version = "0.3.0", features = ["fs", "trace"] }
+rand_core = "0.6.4"
+regex="*"
+futures="*"
+maud = "*"
+rustls = "*"
+tokio = "1.38.0"
+lettre = { version = "0.11.7", default-features = false, features = ["builder", "rustls-tls", "smtp-transport"] }
+async-session = "3.0.0"

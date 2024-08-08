@@ -1,0 +1,14 @@
+[Unit]
+Description=Motion Rank service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+EnvironmentFile=/home/peakr/motionrank/.env
+Type=simple
+Restart=always
+RestartSec=1
+User=umut
+ExecStart=/home/peakr/motionrank/target/release/server
+
+[Install]
+WantedBy=multi-user.target

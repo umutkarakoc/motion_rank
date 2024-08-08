@@ -1,0 +1,1477 @@
+{
+  "db": "PostgreSQL",
+  "005b2a7cd8f91ab766d3d404b765d2b1717306a1b5de1455b21d1c6fd65109a5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "delete from video where id = $1"
+  },
+  "068a9ff1b1996cc3c92ba48d30a107b94454f6e0d7dbbb1a9580947f489298cd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "text",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "time",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "video_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "duration",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "is_published",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "insert into review\n            (video_id, user_id, text, time, duration)\n            values ($1, $2, '', $3, $4)\n            on conflict (video_id, time, user_id)\n            do update set updated_at = now()\n            returning * "
+  },
+  "098505a18c9e37b20b06df78e36b0c8a7e512c2e3e3a03cac3c8001a574ad1b7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "time",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "last_edited_at!",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "username",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "text!",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "drawing_count",
+          "ordinal": 6,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        null,
+        null,
+        null,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        select r.id, r.time, u.id as user_id, max(r.created_at) as \"last_edited_at!\", \n            max(u.name) as \"username\", max(r.text) as \"text!\" ,\n            count(d.id) as drawing_count\n        from review r\n        join \"user\" u on u.id = r.user_id\n        join video v on v.id = r.video_id\n        left join review_drawing d on d.review_id = r.id\n        where r.video_id = $1 and r.user_id = $2\n        group by r.time, u.id, r.id\n        order by r.time asc"
+  },
+  "1192c8925e5640486aaef5858a7137c08a089a6f31b130b43b59dca85792ef08": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "video_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "email",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select v.* from video_access v\n                where v.user_id = $1 and v.video_id = $2 "
+  },
+  "146ced8449c664488672af727fa130c80dfa317ff653c561d2fe4fd3eabc8b45": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "text",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "reply_for",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "username!",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select rr.*, u.name as \"username!\" from review_reply  rr\n            join \"user\" u on u.id = rr.user_id\n            where rr.reply_for = $1"
+  },
+  "1a502cc46923593ec22c21d862e90b3370ca59c0e3f2b60909d8e46495aa2b32": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "insert into project\n                    (user_id, name)\n                    VALUES ($1, $2)"
+  },
+  "22b98d9412ec1b71f42a3821c9f0e9000012fd8e0fb295f41b75c42fef62109f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "owner",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select v.user_id as owner, a.user_id from project_access a\n                join project v on v.id = a.project_id\n                where a.id = $1"
+  },
+  "23a02e7a5add92f1ae0975ff0f57a56d7c8a24cd49efbafaedb93ae56493f597": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "duration",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "width",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "height",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "image_link",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "state",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "description",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "preview_link",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "processing",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "is_share_link_active",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deleted",
+          "ordinal": 14,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "select * from video where state != 'ready'"
+  },
+  "37976a7bad09723c4acc68e29341503043721afcdf15b5492edce4cceda8c427": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "state",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "token",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "SELECT * FROM magic_link\n            WHERE id = $1\n            ORDER BY created_at DESC LIMIT 1"
+  },
+  "384fb7494517e4ef606a8c5b7163b3d73afe695b8371c689a080e081bebaf6dc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Int4",
+          "Int4",
+          "Int4",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
+      }
+    },
+    "query": "update video\n                        set state = $5, duration = $2, width = $3 , height = $4, image_link = $6, preview_link = $7, processing=$8\n                        where id = $1"
+  },
+  "44b616a6b861addc703a8f7d4db7aa57b6f694eb2a739e951cc932a687b7028d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "registered_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM \"user\" WHERE \"email\" = $1"
+  },
+  "465bfc6fa18bb05bb583eca2ee03a967b1a0fad64b3284331757967085873feb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "state",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "token",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "SELECT * FROM magic_link\n        WHERE token = $1 and state = 'sent' and created_at > $2\n        ORDER BY created_at DESC LIMIT 1"
+  },
+  "505bf1406251491d8bd9fcb6ac3755bc788b7b74464ae3acf75ae510de94125a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "registered_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "select * from \"user\" where email = $1"
+  },
+  "517b1bb3d4302f364bf9211c719a23163f478987ef534d02de2e191fbd14fed4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "insert into project\n                (user_id, name)\n                VALUES ($1, $2) returning *"
+  },
+  "5453a6ce2212f6e69328f39b1ba4eebabfd0563e482bfd70cbab0cef7bfabff8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "insert into project_access\n            (project_id, email, user_id)\n            VALUES ($1, $2, $3)\n            returning *"
+  },
+  "571a07bcffdacb2d1a768315cd0a89f48a93aa50f0bf060540963c3ac8e7de89": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Float8Array",
+          "Varchar",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "insert into review_drawing\n            (drawing, color, review_id)\n            values ($1, $2, $3)"
+  },
+  "58405567c7701e33697d4325fa18c752b4be9e111664b94bf76ff0c0264be675": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "insert into video\n            (user_id, title, id, project_id, image_link, preview_link )\n            VALUES ($1, $2, $3, $4, $5, $6)"
+  },
+  "61aaa0bdbe3d2ece6f0495a3b2853993310d2fe4b8f179a2e53cb9776acd6877": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "INSERT INTO magic_link (id, email, token) VALUES ($1, $2, $3)"
+  },
+  "6332ad7f763adedf2e6bf4d31d3952bf28c105140817b0c1b97f085e61ea70fc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from project where user_id = $1 order by id"
+  },
+  "733d9284169bbb2971ac7eda94754cae0319b0e3a6be07bcb2975c96c6fb5c7c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from project where id  = $1 and user_id = $2"
+  },
+  "75f0dd11f08b18abefcf0da50e1d8ad00ced4c0b29431c6e7e857d2506614372": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "insert into project (user_id, name) VALUES ($1, 'New Project') returning *"
+  },
+  "847a9dfc159c200f2fbe81f4c26c8e4cc9dbd70b8dc3bc03d68a88901dc36526": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "UPDATE magic_link SET state = 'verified' WHERE id = $1"
+  },
+  "867ab75e074ca7f21e45469f963b87f965920ec6445a80fa22df8df264fc4655": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "update project set name = $3 where id = $1 and user_id = $2"
+  },
+  "867f9302a260c77e4ce9e99737e46baf9da70882ed17e1b34d536c92da5e266d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "drawing",
+          "ordinal": 0,
+          "type_info": "Float8Array"
+        },
+        {
+          "name": "color",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n            select d.drawing, d.color as \"color\"\n            from review_drawing d\n            join review r on r.id = d.review_id\n            join \"user\" u on u.id = r.user_id\n            join video v on v.id = r.video_id\n            where r.video_id = $1 and r.user_id = $2 and time = $3 and drawing is not null\n            order by r.time asc"
+  },
+  "8949c5cd88f5766b8fa615111d772dddc37b51728f05bd64f0ff5bdda86dc1a5": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "registered_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from \"user\" where id = $1 "
+  },
+  "8c0f412fe0397f2e8426e2e23867b1bba164c561199748f466b53fa9c070050f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "duration",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "image_link",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "preview_link",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "state",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "processing",
+          "ordinal": 7,
+          "type_info": "Int4"
+        },
+        {
+          "name": "owner_name",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Text"
+        ]
+      }
+    },
+    "query": "select v.id, v.user_id, v.duration, v.title,\n                    v.image_link, v.preview_link, v.state, v.processing,\n                    u.name as owner_name,\n                    case when v.user_id = $1 then v.project_id else va.project_id end as project_id\n                    from video v\n                left join video_access va on va.video_id = v.id\n                left join project_access fa on fa.project_id = v.project_id\n                join \"user\" u on u.id = v.user_id\n                where (v.user_id = $1 or va.user_id = $1 or fa.user_id = $1) \n                    and v.deleted = false and v.project_id = $2\n                    and (v.title like $3 or $3 is null)\n                order by v.created_at desc"
+  },
+  "93645657e5ecbf1f67d782141a4cb310769ffbb7cd105b3411b5435d7c395855": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from project where user_id = $1 order by created_at"
+  },
+  "9a72cf378bf6bd34716c686ec41452e0485cd06cd4f82e29c53b50a1ec16a835": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "delete from project_access where id = $1"
+  },
+  "9f98790bd9a4547c4bdafe09e3483c1e273ff8206cc8dfcd989aede59761515f": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Timestamptz",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "INSERT INTO \"user\" (id, \"email\", name, created_at, registered_at) VALUES ($1, $2, $3, $4, $5)"
+  },
+  "aa7639487ed56c2586f24e59ab8828869ec39666817ceca6eb6827f90ba25772": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from project where user_id = $1 and id = $2"
+  },
+  "b54d414956ee8dcafd9247a9e906dbf6c04fb00e97bd25cd03631d696932dba2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "email",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select v.id, v.user_id, u.name, u.email from project_access as v\n        join \"user\" u on u.id = v.user_id\n        join project on project.id = v.project_id\n        where v.project_id = $1 and project.user_id = $2\n        order by v.created_at"
+  },
+  "bdc8bafbd48fc3ced842dd73e8a371e3b91fc0ef2cfb688bbb27c1c3544d4d42": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "duration",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "title",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "width",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "height",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "image_link",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "state",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "description",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "preview_link",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "processing",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "is_share_link_active",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "deleted",
+          "ordinal": 14,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from video where id = $1"
+  },
+  "c9b4f0a79207748bf9f3771c182a72e73972f805d25f36a5e1e5454a5ff4462c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "insert into review\n            (video_id, user_id, text, time, duration)\n            values ($1, $2, $3, $4, $5)\n            on conflict (video_id, time, user_id)\n            do update set text = $3, updated_at = now() "
+  },
+  "d8fb23cef86cf2271fb600f975fcfc4ead522d319b8d7b1986bdf7311901b789": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "insert into review_reply\n            (user_id, text, reply_for)\n            values ($1, $2, $3)"
+  },
+  "dc21bb739f7e97bad2b66d9f4f33e0eacfa734f33db68544ef8386b82bc03a1f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "count",
+          "ordinal": 2,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select u.id as user_id, u.name, count(r.id) from review r\n        join \"user\" u on u.id = r.user_id\n        join video v on v.id = r.video_id\n        where r.video_id = $1 and (v.user_id = $2 or r.user_id = $2)\n        group by u.id, u.name"
+  },
+  "dfad738447b6f526882441af2e69ec41f97650644fca05c5350fd44c6fd3ea37": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "owner_name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "owner_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select project.name, project.id, \"user\".name as owner_name, \"user\".id as owner_id from project_access \n        join project on project.id = project_access.project_id\n        join \"user\" on \"user\".id = project.user_id\n        where project_access.user_id = $1 \n        order by project.name"
+  },
+  "e2c3296164f06f7f74554563c1159d798bc0d192fad28463cfe52c4b1acd82d7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select v.* from project_access v\n            where v.user_id = $1 and v.project_id = $2 "
+  },
+  "e84f7cb73189f9cb88a19dcd25e19ca76331b0d2f94b67829abbde165a71ab72": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "registered_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "select * from \"user\" where id = $1"
+  },
+  "ee22c8192c33565ed7e18f7861862a8a8fc2fd139795f5d94a4f5f00babd6709": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "INSERT INTO \"user\" (id, \"email\", name, created_at) VALUES ($1, $2, $3, $4)"
+  },
+  "f33ff09b9c7191cde656c23cf05ba7ef8aa6db8dfaf6ffecd4228c5c2aa5f307": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "UPDATE magic_link SET state = 'used' WHERE id = $1"
+  }
+}
