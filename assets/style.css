@@ -89,37 +89,54 @@
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
-.vjs-control-bar {
-    top: 8px;
-/*    display: flex !important;
-    transform: translateY(56px);
-    z-index: 999999;
-    background-color: none !important;
-    width: calc(100vw - 380px) !important;
-    left: 0;
-    transform: translate(calc(-50% + 230px), 55px);
-    position: absolute;*/
-}
+.vjs-control-bar { 
+    position: absolute !important;
+    bottom: -30px !important;
+    /* border-radius: 6px; */
+    /* background: #000000 !important; */
+    color: white
+    background: rgb(33, 37, 41) !important
+    /* background:rgba(43, 51, 63, 0.7) !important */
+} 
 
-.vjs-picture-in-picture-control {
-    display: none;
-}
+/* .vjs-progress-control { */
+    /* top: -45px !important; */
+    /* position: absolute !important; */
+    /* width: 100% !important; */
+/* } */
+/* .vjs-progress-control > .vjs-progress-holder{ */
+    /* margin 0 !important */
+/* } */
+    /* top: 8px; */
+/* /*    display: flex !important; */
+    /* transform: translateY(56px); */
+    /* z-index: 999999; */
+    /* background-color: none !important; */
+    /* width: calc(100vw - 380px) !important; */
+    /* left: 0; */
+    /* transform: translate(calc(-50% + 230px), 55px); */
+    /* position: absolute;*/ */
+/* } */
 
-.vjs-fullscreen-control {
-    display: none;
-}
+/* .vjs-picture-in-picture-control { */
+    /* display: none; */
+/* } */
 
-.vjs-control-bar * {
-    color: black !important;
-}
+/* .vjs-fullscreen-control { */
+    /* display: none; */
+/* } */
 
-.vjs-volume-pane {
-    display: none !important;
-}
+/* .vjs-control-bar * { */
+    /* color: black !important; */
+/* } */
 
-.vjs-remaining-time {
-    width: 80px !important;
-}
+/* .vjs-volume-pane { */
+    /* display: none !important; */
+/* } */
+
+/* .vjs-remaining-time { */
+    /* width: 80px !important; */
+/* } */
 
 div::-webkit-scrollbar {
   width: 0.2em;
@@ -127,15 +144,15 @@ div::-webkit-scrollbar {
 }
 
 video {
-    background: black !important;
-    background-color: black !important;
+    background: #00000000!important;
+    background-color: #00000000!important;
     overflow: hidden;
 /*    border-radius: 6px;*/
 }
 
 .video-js {
     border-radius: 6px;
-    background: white !important;
+    background: #00000000!important;
 }
  
 div::-webkit-scrollbar-track {
@@ -166,4 +183,37 @@ box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2p
 }
 #reviews:hover {
     overflow-y: scroll;
+}
+
+
+/* #write_review textarea { */
+ /* border-color: #00000050 */    
+/* } */
+/* #write_review textarea::placeholder { */
+  /* color:white; */
+  /* opacity: 1; /* Firefox */ */
+/* } */
+
+/* #write_review textarea::-ms-input-placeholder { /* Edge 12 -18 */ */
+  /* color: white; */
+/* } */
+
+.review-popover {
+  --bs-popover-max-width: 200px;
+  --bs-popover-border-color: var(--bd-dark-bg);
+  --bs-popover-header-bg: var(--bd-dark-bg);
+  --bs-popover-header-color: var(--bs-white);
+  --bs-popover-body-padding-x: 1rem;
+  --bs-popover-body-padding-y: .5rem;
+  --bs-tooltip-bg: var(--bd-violet-bg);
+  --bs-tooltip-color: var(--bs-white);
+  --bs-popover-header-bg: var(--bd-dark-bg);
+  z-index: 10000
+}
+.scroll-y {
+    overflow-y: auto;
+  scrollbar-gutter: stable; /* reserves space when scrolling is locked */
+  scrollbar-width: thin; /* makes scrollbar thinner. Wouldn't set it to `none` because of accessibility reasons */
+  scrollbar-color: var(--primary-color) var(--bg-color); /* custom colors makes scrollbar blend in  */
+
 }

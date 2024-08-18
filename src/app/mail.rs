@@ -3,10 +3,9 @@ use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
 use once_cell::sync::Lazy;
 
-use crate::appconfig::{AppConfig, ENV};
-use crate::models::LoginCode;
+use crate::appconfig::ENV;
 
-const login_confirm_template: &'static str = r###"<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+const LOGIN_CONFIRM_TEMPLATE: &'static str = r###"<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <!--[if gte mso 9]>
@@ -203,7 +202,7 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
 </html>
 "###;
 
-const share_template: &'static str = r###"
+const SHARE_TEMPLATE: &'static str = r###"
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -447,18 +446,18 @@ body {font-family: 'Muli', sans-serif;}
 "###;
 
 static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
-    let creds = Credentials::new(ENV.mailer, ENV.mailer_password);
+    let creds = Credentials::new(ENV.mailer.clone(), ENV.mailer_password.clone());
 
     // Open a remote connection to gmail
     let mailer = SmtpTransport::starttls_relay("smtp.fastmail.com")
-        .unwrap()
+        .expect("smtp error")
         .credentials(creds)
         .build();
     mailer
 });
 
 pub async fn send_login_mail(to: String, link: String) {
-    let body = login_confirm_template.replace("magic_link", link.as_str());
+    let body = LOGIN_CONFIRM_TEMPLATE.replace("magic_link", link.as_str());
     let email = Message::builder()
         .from("MotionRank <auth@motionrank.com>".parse().unwrap())
         .to(to.parse().unwrap())
@@ -467,16 +466,28 @@ pub async fn send_login_mail(to: String, link: String) {
         .body(body)
         .unwrap();
 
-    println!("Send {}", to.as_str());
+    println!("Send 1 {}", to.as_str());
 
-    match MAILER.send(&email) {
+    let creds = Credentials::new(ENV.mailer.clone(), ENV.mailer_password.clone());
+    println!("Send 2 {}", to.as_str());
+
+    // Open a remote connection to gmail
+    let mailer = SmtpTransport::starttls_relay("smtp.fastmail.com")
+        .expect("smtp error")
+        .credentials(creds)
+        .build();
+    println!("Send  3{}", to.as_str());
+
+    match mailer.send(&email) {
         Ok(_) => println!("Email sent successfully!"),
-        Err(e) => panic!("Could not send email: {e:?}"),
-    }
+        Err(e) => println!("Could not send email: {e:?}"),
+    };
+
+    println!("Sent {}", to.as_str());
 }
 
 pub async fn send_share_mail(to: String, name: String, link: String) {
-    let body = share_template
+    let body = SHARE_TEMPLATE
         .replace("{{share}}", link.as_str())
         .replace("{{name}}", name.as_str());
     let email = Message::builder()

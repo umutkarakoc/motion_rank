@@ -17,7 +17,7 @@ use async_session::CookieStore;
 #[derive(Clone)]
 pub struct AppState {
     db: PgPool,
-        session_store: CookieStore,
+    session_store: CookieStore,
 }
 impl FromRef<AppState> for PgPool {
     fn from_ref(app_state: &AppState) -> PgPool {
@@ -32,6 +32,10 @@ impl FromRef<AppState> for CookieStore {
 
 #[tokio::main]
 async fn main() {
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .unwrap();
+
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("error"));
 
     let db = PgPoolOptions::new()
@@ -87,7 +91,7 @@ async fn check_videos(db: &PgPool) {
             Ok(result) => {
                 let result = &result.json::<serde_json::Value>().await.unwrap();
                 let state = result.get("status").unwrap().as_i64().unwrap();
-                let duration = result.get("length").unwrap().as_f64().expect("msg") as i32;
+                let duration = result.get("length").unwrap().as_f64().expect("msg") as f32;
                 let width = result.get("width").unwrap().as_i64().unwrap() as i32;
                 let height = result.get("height").unwrap().as_i64().unwrap() as i32;
                 let processing = result.get("encodeProgress").unwrap().as_i64().unwrap();
@@ -107,7 +111,7 @@ async fn check_videos(db: &PgPool) {
                         set state = $5, duration = $2, width = $3 , height = $4, image_link = $6, preview_link = $7, processing=$8
                         where id = $1"#,
                             video.id,
-                            duration,
+                            (duration * 1000.) as i32,
                             width,
                             height,
                             state,

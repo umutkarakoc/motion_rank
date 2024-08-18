@@ -1,4 +1,3 @@
-use crate::appconfig::ENV;
 use crate::logged_user::LoggedUser;
 use crate::models::User;
 use crate::AppState;
@@ -8,13 +7,83 @@ use chrono::Utc;
 use maud::{html, Markup};
 use reqwest::StatusCode;
 use serde::Deserialize;
-use serde_json::json;
 use sqlx::PgPool;
 use uuid::Uuid;
 
 use super::mail;
-
 pub async fn render_access(video_id: Uuid, user_id: Uuid, db: &PgPool) -> Markup {
+    let result = sqlx::query!(
+        r#"select v.id, v.user_id, u.name, u.email from video_access as v
+        join "user" u on u.id = v.user_id
+        join video on video.id = v.video_id
+        where v.video_id = $1 and video.user_id = $2
+        order by v.created_at"#,
+        video_id,
+        user_id
+    )
+    .fetch_all(db)
+    .await
+    .unwrap();
+
+    let button = html! {
+        button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#sharing-modal" {
+            i class="bi bi-person-fill-lock me-2"{}
+            span { "Share" }
+        }
+    };
+    let sharing = html! {
+        div id="sharing_content" class="p-2" {
+             form class="d-flex mb-4"
+                    hx-post={"/video/"(video_id.to_string())"/access"}
+                    hx-target="#sharing_content" hx-swap="outerHTML"
+                    hx-select="#sharing_content"  {
+                 input id="edit_access" class="form-control form-control-sm" autofocus name="email"
+                     style="flex: 1" placeholder="Add email" {}
+                 button type="submit" class="btn btn-light btn-sm ms-2" { "Invite" }
+             }
+             @if result.len() == 0 {
+                 div class="d-flex align-items-center justify-content-center flex-column mt-4" {
+                     p class="h6 mt-2" { "Nobody has access to this video yet" }
+                 }
+             } @else {
+                 @for access in result.iter() {
+                     div class="d-flex justify-content-between align-items-center border-bottom pb-1 mt-2" {
+                         span class="bg-primary text-white d-flex justify-content-center align-items-center rounded-circle"
+                             style="width: 40px; height: 40px;" {
+                             (access.name.chars().next().unwrap().to_uppercase().to_string())
+                         }
+                         div class="d-flex flex-column ms-2" style="flex: 1;" {
+                             span class="h6 m-0" { (access.name) }
+                             span class="text-muted small m-0" { (access.email) }
+                         }
+                         button class="btn " id={"sharing_delete_"(access.id.to_string())} {
+                             i class="bi bi-x-circle-fill text-danger"{}
+                         }
+                     }
+                 }
+             }
+        }
+    };
+    html! {
+        div {
+            (button)
+            div class="modal fade" id="sharing-modal" tabindex="-1" aria-labelledby="sharing-label" aria-hidden="true" {
+                div class="modal-dialog" {
+                    div class="modal-content" {
+                        div class="modal-header" {
+                            h1 class="modal-title fs-5" id="sharing-label" { "Share Project" }
+                            button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" {}
+                        }
+                        div class="modal-body" {
+                            (sharing)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+pub async fn _render_access(video_id: Uuid, user_id: Uuid, db: &PgPool) -> Markup {
     let result = sqlx::query!(
         r#"select v.id, v.user_id, u.name, u.email from video_access as v
         join "user" u on u.id = v.user_id
@@ -38,8 +107,11 @@ pub async fn render_access(video_id: Uuid, user_id: Uuid, db: &PgPool) -> Markup
             }
 
             div class="dropdown-menu box shadow p-2 mt-2 " id="sharing_content" role="menu" style="width: 400px;"{
-                form style="display:flex;" hx-post={"/video/"(video_id.to_string())"/access"}
-                    hx-target="#sharing_content" hx-swap="outerHTML" hx-select="#sharing_content" {
+                form style="display:flex;"
+                    hx-post={"/video/"(video_id.to_string())"/access"}
+                    hx-target="#sharing_content" hx-swap="outerHTML"
+                    hx-select="#sharing_content"
+                    {
                     input id="edit_access" class="input is-small" autofocus name="email"
                         style="flex:1" placeholder="Add email" {}
                     button type="submit" class="button is-small ml-2 is-info is-light"  {"Invite"}

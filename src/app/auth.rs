@@ -22,22 +22,26 @@ pub async fn get_login() -> Html<String> {
                 align-items: stretch; flex-direction: row"{
             div style="max-width: 600px; padding: 40px; z-index: 100; display: flex; flex-direction: row;
                 justify-content: center; align-items: center;" {
-                div class="card p-6 is-flex is-flex-direction-column is-flex-justify-content-center" style="max-width: 650px; min-width: 500px; width: 100%;" {
+                div class="card p-4 d-flex flex-column justify-content-center" style="max-width: 650px; min-width: 500px; width: 100%;" {
                     img style="width: 100%; height: 30px; object-fit:contain" src="/logofull.png"  { }
 
-                    h3 class="title is-size-4 mt-6" {"Login to MotionRank"}
+                    h3 class="card-title h4 mt-3" {"Login to MotionRank"}
                     form hx-post="/auth/send_magic_link" hx-target="this" hx-swap="outerHTML"
-                        class="is-flex is-flex-direction-column mb-4" {
-                        div class="field"{
+                        class="d-flex flex-column mb-3" {
+                        div class="mb-3"{
                             label for="email"{}
-                            div class="control has-icons-left" {
-                                span class="icon" { i class="fa-solid fa-envelope"{} }
+                            div class="input-group" {
+                                span class="input-group-text" style="width: 40px;" { 
+                                    svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-envelope" viewBox="0 0 17 16"{
+                                        path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" {}
+                                    }
+                                }
                                 input id="email" name="email" type="email" required placeholder="email"
-                                    value="" class="input"{}
+                                    value="" class="form-control"{}
                             }
                         }
 
-                        button class="button is-primary" {"Login"}
+                        button class="btn btn-dark" {"Login"}
                     }
                 }
             }}
@@ -58,8 +62,15 @@ pub async fn send_magic_link(
     let email = params.email.to_string();
     let token = Uuid::new_v4();
 
+
     let link = format!("{}/auth/confirm/{}", ENV.host, token);
-    mail::send_login_mail(email.clone(), link).await;
+
+    {
+        let email = email.clone();
+        tokio::spawn(async move {
+            mail::send_login_mail(email, link).await;
+        });
+    }
 
     sqlx::query!(
         "INSERT INTO magic_link (id, email, token, state) VALUES ($1, $2, $3, 'sent')",
@@ -72,19 +83,29 @@ pub async fn send_magic_link(
     .unwrap();
 
     html!{
-        form hx-post={"/auth/check/"(id.to_string())} hx-trigger="every 1s"  hx-swap="none" class="is-flex is-flex-direction-column"{
-            div class="field"{
-                div class="field"{
+        form hx-post={"/auth/check/"(id.to_string())} hx-trigger="every 1s" hx-swap="none" class="d-flex flex-column" {
+            div class="mb-3  d-flex flex-column"{
+                div class="mb-3"{
                     label for="email" {}
-                    div class="control has-icons-left" {
-                        span class="icon" { i class="fa-solid fa-envelope" {}}
-                        input id="email" name="email" type="email" hx-preserve="true" required placeholder="email" 
-                            value=(email)  class="input" {}
+                    div class="input-group" {
+                        span class="input-group-text" style="width: 40px;" { 
+                            svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-envelope" viewBox="0 0 17 16"{
+                                path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" {}
+                            }
+                        }
+                        input id="email" name="email" type="email" hx-preserve="true" disabled required placeholder="email" 
+                            value=(email)  class="form-control" {}
                     }
                 }
-                div class="notification"{
-                    "We just send a magic login link to your email address. Check your email for confirmation."
-                    progress class="progress is-small is-primary" max="100" {"15%"}
+                
+                div class="text-dark"{
+                    "We just sent a magic login link to your email address. Check your email for confirmation."
+                }
+
+                div class=" placeholder-glow  mt-3 flex-fill d-flex "  {
+                    div class="placeholder flex-fill bg-primary rounded" role="" {
+                        
+                    }
                 }
             }
         }
@@ -92,7 +113,6 @@ pub async fn send_magic_link(
 }
 
 pub async fn confirm(
-    State(store): State<CookieStore>,
     State(client): State<PgPool>,
     Path(token): Path<Uuid>,
 ) -> impl IntoResponse {
@@ -142,10 +162,10 @@ pub async fn confirm(
                 html! {
                     app style="width: 100vw; height: 100vh; display: flex; flex-direction:column;
                         justify-content: center; align-items: center" {
-                        h5 class="title is-size-4" { "Your login success"}
-                        p class="subtitle is-size=5" {"You can close this window"}
+                        h5 class="h4" { "Your login was successful"}
+                        p class="h5" {"You can close this window"}
                     }
-                },
+                }
             )
             .into_response()
         }
@@ -154,10 +174,10 @@ pub async fn confirm(
             html! {
                 app style="width: 100vw; height: 100vh; display: flex; flex-direction:column;
                     justify-content: center; align-items: center" {
-                    h5 class="title is-size-4" { "Your magic link is timeout"}
-                    p class="subtitle is-size=5" {"You can close this window"}
+                    h5 class="h4" { "Your magic link has timed out"}
+                    p class="h5" {"You can close this window"}
                 }
-            },
+            }
         )
         .into_response(),
     }

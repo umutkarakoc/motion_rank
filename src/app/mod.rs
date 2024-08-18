@@ -5,6 +5,7 @@ mod mail;
 mod project;
 mod video;
 mod video_access;
+mod video_review;
 // mod video_review;
 
 use crate::{logged_user::LoggedUser, AppState};
@@ -60,5 +61,6 @@ pub fn router() -> Router<AppState> {
         .route("/", get(get_home))
         .nest("/project", project::router())
         .nest("/video", video::router())
+        .nest("/video", video_review::router())
         .nest("/auth", auth::router())
 }

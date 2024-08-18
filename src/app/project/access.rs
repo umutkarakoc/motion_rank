@@ -1,4 +1,3 @@
-use crate::appconfig::ENV;
 use crate::logged_user::LoggedUser;
 use crate::models::User;
 use crate::AppState;
@@ -8,7 +7,6 @@ use chrono::Utc;
 use maud::{html, Markup};
 use reqwest::StatusCode;
 use serde::Deserialize;
-use serde_json::json;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -28,45 +26,55 @@ pub async fn render_access(project_id: Uuid, user_id: Uuid, db: &PgPool) -> Mark
     .await
     .unwrap();
 
+    let button = html! {
+        button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#sharing-modal" {
+            i class="bi bi-person-fill-lock me-2"{}
+            span { "Share" }
+        }
+    };
+    let sharing = html! {
+        div id="sharing_content" class="p-2" {
+             form class="d-flex mb-4" hx-post={"/project/"(project_id.to_string())"/access"}
+                 hx-target="#sharing_content" hx-swap="outerHTML" hx-select="#sharing_content" {
+                 input id="edit_access" class="form-control form-control-sm" autofocus name="email"
+                     style="flex: 1" placeholder="Add email" {}
+                 button type="submit" class="btn btn-light btn-sm ms-2" { "Invite" }
+             }
+             @if result.len() == 0 {
+                 div class="d-flex align-items-center justify-content-center flex-column mt-4" {
+                     p class="h6 mt-2" { "Nobody has access to this video yet" }
+                 }
+             } @else {
+                 @for access in result.iter() {
+                     div class="d-flex justify-content-between align-items-center border-bottom pb-1 mt-2" {
+                         span class="bg-primary text-white d-flex justify-content-center align-items-center rounded-circle"
+                             style="width: 40px; height: 40px;" {
+                             (access.name.chars().next().unwrap().to_uppercase().to_string())
+                         }
+                         div class="d-flex flex-column ms-2" style="flex: 1;" {
+                             span class="h6 m-0" { (access.name) }
+                             span class="text-muted small m-0" { (access.email) }
+                         }
+                         button class="btn " id={"sharing_delete_"(access.id.to_string())} {
+                             i class="bi bi-x-circle-fill text-danger"{}
+                         }
+                     }
+                 }
+             }
+        }
+    };
     html! {
-        #sharing_model class="dropdown is-right ml-2 " {
-            div class="dropdown-trigger"{
-                button class="button is-light" {
-                    span class="icon is-small" { i class="fa fa-link" {} }
-                    span {"Share"}
-                }
-            }
-
-            div class="dropdown-menu box shadow mt-2" id="sharing_content" role="menu" style="width: 400px;"{
-                form style="display:flex;" hx-post={"/project/"(project_id.to_string())"/access"}
-                    hx-target="#sharing_content" hx-swap="outerHTML" hx-select="#sharing_content" {
-                    input id="edit_access" class="input is-small" autofocus name="email"
-                        style="flex:1" placeholder="Add email" {}
-                    button type="submit" class="button is-small ml-2 is-info is-light"  {"Invite"}
-                }
-
-                div style="min-height: 200px; max-height: 400px; overflow-y: auto " {
-                    @if result.len() == 0 {
-                        div style="flex: 1" class="is-flex is-align-items-center mt-6
-                            is-justify-content-center is-flex-direction-column" {
-                            p class="title is-size-6 mt-2" {"Nobody has access to this video yet"}
+        div {
+            (button)
+            div class="modal fade" id="sharing-modal" tabindex="-1" aria-labelledby="sharing-label" aria-hidden="true" {
+                div class="modal-dialog" {
+                    div class="modal-content" {
+                        div class="modal-header" {
+                            h1 class="modal-title fs-5" id="sharing-label" { "Share Project" }
+                            button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" {}
                         }
-                    } @else {
-                        @for access in result.iter() {
-                            div class="mt-2 pb-1"
-                                style="display: flex; justify-content: space-between;
-                                border-bottom: 1px solid darkgrey; align-items: center" {
-                                span style="width:40px; height: 40px; border-radius: 30px"
-                                    class="has-background-primary is-flex is-justify-content-center is-align-items-center"
-                                    { (access.name.chars().next().unwrap().to_uppercase().to_string() ) }
-                                div class="is-flex is-flex-direction-column ml-2" style="flex: 1"{
-                                    span class="subtitle m-0 is-size-6"{ (access.name) }
-                                    span class="subtitle m-0 is-size-7"{ (access.email) }
-                                }
-                                button class="button is-small is-danger is-light" id={"sharing_delete_"(access.id.to_string()) } {
-                                    span class="icon"{i class="fa fa-remove" {} }
-                                }
-                            }
+                        div class="modal-body" {
+                            (sharing)
                         }
                     }
                 }

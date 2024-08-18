@@ -84,25 +84,22 @@ create table review
     text       varchar                                            not null,
     time       integer                  default 0                 not null,
     reply_for  uuid,
-    is_deleted boolean                  default false
+    is_deleted boolean                  default false,
+    is_resolved boolean                 default false             not null
+
 );
 
-create table review_comment
+create table review_reply
 (
-    id         uuid                     default gen_random_uuid()            not null
+    id         uuid                     default gen_random_uuid() not null
         primary key,
-    created_at timestamp with time zone default now()                        not null,
-    user_id    uuid                                                          not null
+    created_at timestamp with time zone default now()             not null,
+    user_id    uuid                                               not null
         references "user",
-    text       varchar                  default ''::character varying        not null,
-    time       integer                  default 0                            not null,
-    video_id   uuid                                                          not null
+    review_id   uuid                                               not null
         references video,
-    updated_at timestamp with time zone default now()                        not null,
-    review_id  uuid                                                          not null
-        references review,
-    drawing    double precision[],
-    color      varchar                  default '#000000'::character varying not null
+    text       varchar                                            not null,
+    is_deleted boolean                  default false
 );
 
 create table review_drawing

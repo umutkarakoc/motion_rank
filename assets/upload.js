@@ -14,7 +14,7 @@ window.onload = function() {
 
             await htmx.ajax("POST", `/project/${project_id}/video/${VideoId}`, {swap: "none", values: {title}});
             setTimeout(() => {
-                htmx.ajax("GET", window.location.pathname, {target: "body", swap: "outerHTML"});
+                htmx.ajax("GET", window.location.pathname, {target: "#app", swap: "outerHTML"});
             }, 1000);
 
             let tusupload = new tus.Upload(file, {
@@ -36,7 +36,7 @@ window.onload = function() {
                 },
                 onSuccess: function () {
                     setTimeout(() => {
-                        htmx.ajax("GET", window.location.pathname, {target: "body", swap: "outerHTML"});
+                        htmx.ajax("GET", window.location.pathname, {target: "#app", swap: "outerHTML"});
                     }, 3000);
                 }
             } ) ;

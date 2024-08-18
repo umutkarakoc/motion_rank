@@ -1,14 +1,14 @@
-use axum::{response::*, routing::*, Router};
+use crate::appconfig::ENV;
+use crate::logged_user::LoggedUser;
+use crate::AppState;
 use axum::extract::{Path, State};
+use axum::{response::*, routing::*, Router};
 use chrono::Utc;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::AppState;
-use crate::appconfig::ENV;
-use crate::logged_user::LoggedUser;
 
 async fn generate_bunny_token(id: &Uuid, path: &str, auth_key: &String) -> String {
     let path = format!("/{}/{}", id, path);
@@ -24,10 +24,7 @@ async fn generate_bunny_token(id: &Uuid, path: &str, auth_key: &String) -> Strin
         .replace("=", "");
     format!(
         "https://{}{}?token={}&expires={}",
-        ENV.bunny_hostname,
-        path,
-        token,
-        expires
+        ENV.bunny_hostname, path, token, expires
     )
 }
 
@@ -40,28 +37,30 @@ async fn create_video(
     State(db): State<PgPool>,
     LoggedUser(user_id): LoggedUser,
     Path((project_id, id)): Path<(Uuid, Uuid)>,
-    Form(params): Form<CreateParams>
+    Form(params): Form<CreateParams>,
 ) -> impl IntoResponse {
     let image_link = generate_bunny_token(&id, "thumbnail.jpg", &ENV.bunny_auth_key).await;
 
     let preview_link = generate_bunny_token(&id, "preview.webp", &ENV.bunny_auth_key).await;
 
-    sqlx::query!(r#"insert into video
+    sqlx::query!(
+        r#"insert into video
             (user_id, title, id, project_id, image_link, preview_link )
             VALUES ($1, $2, $3, $4, $5, $6)"#,
-                user_id,
-                params.title,
-                id,
-                project_id,
-                image_link,
-                preview_link,
-            ).execute(&db)
-        .await.unwrap();
+        user_id,
+        params.title,
+        id,
+        project_id,
+        image_link,
+        preview_link,
+    )
+    .execute(&db)
+    .await
+    .unwrap();
 
     StatusCode::OK
 }
 
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/:id", post(create_video))
+    Router::new().route("/:id", post(create_video))
 }
